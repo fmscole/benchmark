@@ -3,6 +3,8 @@ from numba import guvectorize,vectorize,cuda
 import numpy as np
 import numba as nb
 import torch
+from _nms_gpu_post import _nms_gpu_post
+
 @cuda.jit(device=True)
 def DIVUP(m,n):
      return ((m) // (n) + ((m) % (n) > 0))
@@ -69,9 +71,11 @@ def numba_call_nms_kernel(bbox, thresh):
 
     nms_kernel[blocks, threads](n_bbox, bbox, mask_dev)
     mask_host=mask_dev.copy_to_host()
-    return  mask_host
+    selection, n_selec = _nms_gpu_post(
+        mask_host, n_bbox, threads_per_block, col_blocks)
+    return selection, n_selec
 
 if __name__ == "__main__":
     bbox=np.load("bbox.npy")
-    mask_dev= _call_nms_kernel(bbox,0.7)
+    mask_dev= numba_call_nms_kernel(bbox,0.7)
     print(mask_dev)

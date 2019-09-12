@@ -2,7 +2,7 @@ from __future__ import division
 import numpy as np
 import cupy as cp
 import torch as t
-
+from _nms_gpu_post import _nms_gpu_post
 
 @cp.util.memoize(for_each_device=True)
 def _load_kernel(kernel_name, code, options=()):
@@ -115,8 +115,10 @@ def cupy_call_nms_kernel(bbox, thresh):
     kern = _load_kernel('nms_kernel', _nms_gpu_code)
     kern(blocks, threads, args=(cp.int32(n_bbox), cp.float32(thresh),
                                 bbox, mask_dev))
-
-    return mask_dev
+    mask_host = mask_dev.get()
+    selection, n_selec = _nms_gpu_post(
+        mask_host, n_bbox, threads_per_block, col_blocks)
+    return selection, n_selec
 if __name__ == "__main__":
     bbox=np.load("bbox.npy")
     bbox=cp.asarray(bbox)
