@@ -20,7 +20,7 @@ int nms_cuda(py::array_t<int> keep_out,py::array_t<float> boxes_host)
                 return  num_out;
           }
 
-PYBIND11_MODULE(nms, m) {
+PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
     m.doc() = "nms_cuda"; 
     m.def("nms_cuda", &nms_cuda, "A function which nms_cuda");
 }
