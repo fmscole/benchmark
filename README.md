@@ -4,10 +4,17 @@
 3.cuda 9.2    
 4.gpu 2080ti    
 
-run  :    
+    
+build _nms_gpu_post    
 ```
 python build.py build_ext --inplace
-nvcc --shared -Xcompiler -fPIC nms_cuda.cu nms_cuda.cpp  -o nms.so  -I /home/fms/anaconda3/include/python3.7m
+```
+build nms_cuda(pytorch 1.x)    
+```
+python setup.py build_ext --inplace
+```
+run  :    
+```
 jupyter notebook
 ```
 select:    
